@@ -23,6 +23,7 @@
 add_shortcode('tracking-osline', function () {
     @session_start();
     $message = '';
+    $tracking_result = "";
 
     if (isset($_POST['login-osline'])) {
         $mysqli = new mysqli('osline.cloud', 'stuffing_admin', 'sonicist25', 'stuffing_gateway_2023');
@@ -40,6 +41,70 @@ add_shortcode('tracking-osline', function () {
     } else if (isset($_POST['logout'])) $_SESSION['osline-username'] = null;
 
     $username = isset($_SESSION['osline-username']) ? $_SESSION['osline-username'] : null;
+    if (isset($_POST['search'])) {
+        $json = file_get_contents("https://gateway-cl.com/api/track_local?X-API-KEY=gateway-fms&si_number={$_POST['code']}&shipper={$username}");
+        $json = json_decode($json);
+        if (is_null($json)) $message = "Error: not found!";
+        else {
+            $last_status = '';
+            $last_update = '';
+            $departure_from = '';
+            $arrival_at = '';
+            $vessel_name = '';
+            $from = '';
+            $to = '';
+            $tracking_result = "
+                <tr>
+                    <td colspan='3'>&nbsp;</td>
+                </tr>
+                <tr style='color: #5984b7'>
+                    <td colspan='3'>Info Events</td>
+                </tr>
+                <tr>
+                    <td>
+                        Last Status<br>
+                        <input type='text' value='{$last_status}' disabled>
+                    </td>
+                    <td>
+                        Last Update<br>
+                        <input type='text' value='{$last_update}' disabled>
+                    </td>
+                    <td>&nbsp;</td>
+                </tr>
+                <tr>
+                    <td colspan='3'>&nbsp;</td>
+                </tr>
+                <tr style='color: #5984b7'>
+                    <td colspan='3'>Routing Data</td>
+                </tr>
+                <tr style='background-color: #1e367c; color: white; text-align: center;'>
+                    <td>Departure From</td>
+                    <td>Arrival At</td>
+                    <td>Vessel Name</td>
+                </tr>
+                <tr>
+                    <td>
+                        {$from}<br>
+                        {$departure_from}
+                    </td>
+                    <td>
+                        {$to}<br>
+                        {$arrival_at}
+                    </td>
+                    <td>{$vessel_name}<br>&nbsp;</td>
+                </tr>
+                <tr>
+                    <td colspan='3'>&nbsp;</td>
+                </tr>
+                <tr style='text-align:center'>
+                    <td><div style='height: 25px;width: 25px;background-color: #f56502;border-radius: 50%;display: inline-block;'></div><br>{$from}</td>
+                    <td><hr></td>
+                    <td><div style='height: 25px;width: 25px;background-color: #f56502;border-radius: 50%;display: inline-block;'></div><br>{$to}</td>
+                </tr>
+            ";
+        }
+    }
+
     if (is_null($username)) {
         return "
             <form method='POST' style='text-align: center'>
@@ -53,20 +118,24 @@ add_shortcode('tracking-osline', function () {
         ";
     } else {
         return "
-            <table>
-                <tr>
-                    <td colspan='2'>
+            <style>table[id=tracking-osline] td {padding: 5px;}</style>
+            <table width='100%' id='tracking-osline'>
+                <tr style='background-color: #1e367c; color: #d2ce60'>
+                    <td colspan='3'>Tracking Shipment</td>
+                </tr>
+                <tr style='background-color: #1e367c;'>
+                    <td colspan='3'>
                         <form method='POST'>
                             <input type='text' name='code' placeholder='Tracking Code'>
                             <input type='submit' name='search' value='Search'>
-                        </form>
-                    </td>
-                    <td>
-                        <form method='POST'>
                             <input type='submit' name='logout' value='Log Out'>
                         </form>
                     </td>
                 </tr>
+                <tr style='background-color: #1e367c; color:white;'>
+                    <td colspan='3'>{$message}</td>
+                </tr>
+                {$tracking_result}
             </table>
         ";
     }
