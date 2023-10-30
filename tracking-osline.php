@@ -53,6 +53,23 @@ add_shortcode('tracking-osline', function () {
             $vessel_name = '';
             $from = '';
             $to = '';
+
+            if (isset($json->header)) {
+                if (isset($json->header[0])) {
+                    $last_status = isset($json->header[0]->status) ? $json->header[0]->status : '';
+                    $last_update = isset($json->header[0]->last_update) ? date('M d, Y H:i', strtotime($json->header[0]->last_update)) : '';
+                }
+            }
+            if (isset($json->routing)) {
+                if (isset($json->routing[0])) {
+                    $from = isset($json->routing[0]->port_of_loading) ? strtoupper($json->routing[0]->port_of_loading) : '';
+                    $to = isset($json->routing[0]->port_of_discharge) ? strtoupper($json->routing[0]->port_of_discharge) : '';
+                    $departure_from = isset($json->routing[0]->time_of_departure) ? $json->routing[0]->time_of_departure : '';
+                    $arrival_at = isset($json->routing[0]->time_of_discharge) ? $json->routing[0]->time_of_discharge : '';
+                    $vessel_name = isset($json->routing[0]->vessel) ? $json->routing[0]->vessel : '';
+                }
+            }
+
             $tracking_result = "
                 <tr>
                     <td colspan='3'>&nbsp;</td>
@@ -107,18 +124,37 @@ add_shortcode('tracking-osline', function () {
 
     if (is_null($username)) {
         return "
-            <form method='POST' style='text-align: center'>
-                {$message}
-                <input type='text' name='username' placeholder='username' required>
-                <br>
-                <input type='password' name='password' placeholder='password' required>
-                <br>
-                <input type='submit' name='login-osline' value='Login'>
+            <form method='POST'>
+                <table style='margin-left: auto; margin-right: auto'>
+                    <tr style='background-color: #1e367c; color: white; text-align: center;'>
+                        <td>Login</td>
+                    </tr>
+                    <tr style='background-color: #1e367c; color: white; text-align: center;'>
+                        <td>
+                            {$message}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type='text' name='username' placeholder='username' required>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type='password' name='password' placeholder='password' required>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type='submit' name='login-osline' value='Login' style='float: right;background-color: #1e367c;color: white;padding: 5px'>
+                        </td>
+                    </tr>
+                </table>
             </form>
         ";
     } else {
         return "
-            <style>table[id=tracking-osline] td {padding: 5px;}</style>
+            <style>table[id=tracking-osline] td, table[id=tracking-osline] td input {padding: 5px;}</style>
             <table width='100%' id='tracking-osline'>
                 <tr style='background-color: #1e367c; color: #d2ce60'>
                     <td colspan='3'>Tracking Shipment</td>
