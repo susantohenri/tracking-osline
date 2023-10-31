@@ -26,20 +26,28 @@ add_shortcode('tracking-osline', function () {
     $tracking_result = "";
 
     if (isset($_POST['login-osline'])) {
-        $con = mysqli_connect('osline.cloud', 'stuffing_admin', 'sonicist25', 'stuffing_gateway_2023');
-        if (mysqli_connect_errno()) return "Failed to connect to MySQL: " . mysqli_connect_error();
-        if ($result = mysqli_query($con, "SELECT shipper_id FROM mstshipper WHERE shipper_id = '{$_POST['username']}' AND password_no_encript = '{$_POST['password']}'")) {
-            $user = mysqli_fetch_row($result);
-            if (isset($user[0])) $_SESSION['osline-username'] = $user[0];
-            else $message = 'Error: login fail!<br>';
-            mysqli_free_result($result);
-        }
-        mysqli_close($con);
+        $mysqli = new mysqli('osline.cloud', 'stuffing_admin', 'sonicist25', 'stuffing_gateway_2023');
+        if ($mysqli->connect_errno) return "Failed to connect to MySQL: " . $mysqli->connect_error;
+
+        $stmt = $mysqli->prepare("SELECT shipper_id FROM mstshipper WHERE shipper_id = ? AND password_no_encript = ?");
+        $stmt->bind_param('ss', $_POST['username'], $_POST['password']);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $user = $result->fetch_assoc();
+        if (!is_null($user)) $_SESSION['osline-username'] = $user['shipper_id'];
+        else $message = 'Error: login fail!<br>';
+        $stmt->close();
+        $mysqli->close();
     } else if (isset($_POST['logout'])) $_SESSION['osline-username'] = null;
 
     $username = isset($_SESSION['osline-username']) ? $_SESSION['osline-username'] : null;
     if (isset($_POST['search'])) {
-        $json = file_get_contents("https://gateway-cl.com/api/track_local?X-API-KEY=gateway-fms&si_number={$_POST['code']}&shipper={$username}");
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, "https://osline.cloud/api/track_local?X-API-KEY=gateway-fms&si_number={$_POST['code']}&shipper={$username}");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $json = curl_exec($ch);
+        curl_close($ch);
+
         $json = json_decode($json);
         if (is_null($json)) $message = "Error: not found!";
         else {
