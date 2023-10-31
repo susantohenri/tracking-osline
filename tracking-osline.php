@@ -120,7 +120,7 @@ add_shortcode('tracking-osline', function () {
                 </tr>
                 <tr style='text-align:center'>
                     <td><div style='height: 25px;width: 25px;background-color: #f56502;border-radius: 50%;display: inline-block;'></div><br>{$from}</td>
-                    <td><hr></td>
+                    <td style='vertical-align: baseline'><hr></td>
                     <td><div style='height: 25px;width: 25px;background-color: #f56502;border-radius: 50%;display: inline-block;'></div><br>{$to}</td>
                 </tr>
             ";
@@ -167,9 +167,9 @@ add_shortcode('tracking-osline', function () {
                 <tr style='background-color: #1e367c;'>
                     <td colspan='3'>
                         <form method='POST'>
-                            <input type='text' name='code' placeholder='Tracking Code'>
-                            <input type='submit' name='search' value='Search'>
-                            <input type='submit' name='logout' value='Log Out'>
+                            <input type='text' name='code' placeholder='Tracking Code' style='width: 50%'>
+                            <input type='submit' name='search' value='Search' class='elementor-button elementor-button-link elementor-size-sm'>
+                            <input type='submit' name='logout' value='Log Out' class='elementor-button elementor-button-link elementor-size-sm'>
                         </form>
                     </td>
                 </tr>
@@ -181,3 +181,27 @@ add_shortcode('tracking-osline', function () {
         ";
     }
 });
+
+/*
+<div data-elementor-type="wp-page" data-elementor-id="707" class="elementor elementor-707"
+	data-elementor-post-type="page">
+	<section
+		class="elementor-section elementor-top-section elementor-element elementor-element-68bd42b elementor-section-boxed elementor-section-height-default elementor-section-height-default"
+		data-id="68bd42b" data-element_type="section">
+		<div class="elementor-container elementor-column-gap-default">
+			<div class="elementor-column elementor-col-100 elementor-top-column elementor-element elementor-element-df11d33"
+				data-id="df11d33" data-element_type="column">
+				<div class="elementor-widget-wrap elementor-element-populated">
+					<div class="elementor-element elementor-element-8e77f21 elementor-widget elementor-widget-image"
+						data-id="8e77f21" data-element_type="widget" data-widget_type="image.default">
+						<div class="elementor-widget-container">
+							<div style="margin: 25% 0 25%; min-height: 100%">
+								[tracking-osline]</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</div>
+*/
